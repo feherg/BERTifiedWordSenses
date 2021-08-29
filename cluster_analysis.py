@@ -1,3 +1,4 @@
+# %%
 import pandas as pd
 import numpy as np
 import glob
@@ -8,7 +9,7 @@ import hdbscan
 from sklearn import metrics
 import skfuzzy as fuzz
 import os
-
+import ast
 
 def load_data(path):
     # NOTE: expects the filepath or path to bws files, i.e., the output of bertify_ufsac.py
@@ -32,14 +33,16 @@ def load_data(path):
 # %%
 def clean_data(data):
     # merge embedding columns into np array
-    # data_avg = data[["sentID", "sentence", "word", "pos", "wn_30_sense", "startIDX", "endIDX", "remove"]].copy()
     data["avg"] = np.vsplit(data[data.columns[7:-1]].values, len(data)) 
     data["avg"] = data["avg"].apply(lambda x: x.flatten()) # get rid of unnecessary first dim; shape is now (768,)
     data.drop(columns=[str(x) for x in range(768)], inplace=True) # remove 
     data.drop(columns=["remove"], inplace=True)
+    data["wn_30_sense"]=data["wn_30_sense"].apply(lambda x: ast.literal_eval(x)) # read list
+    data["senseID"]=data["senseID"].apply(lambda x: ast.literal_eval(x)) # read list
 
     # unique senses in the dataset
     unique = set(list(chain.from_iterable(data["wn_30_sense"].values.tolist())))
+
 
     return data, len(unique)
 
@@ -115,7 +118,7 @@ def cluster_hdbscan(X, gt, outpath):
         nmi = np.nan
 
 
-    with open(outpath+"_hdbs.csv", "a") as f:
+    with open(outpath+"_est_ks_hdbs.csv", "a") as f:
         f.write(";".join([str(len(np.unique(hdbs.labels_))), str(np.nan), str(ari), str(nmi), str(pu), str(re), str(f1)]) + "\n")
     
 
@@ -180,7 +183,7 @@ def estimate_cluster_sizes_with_hdbscan(files):
         X = get_normalized_vectors(data)
         gt = data["senseID"].values.tolist() # list of lists
 
-        with open(outpath+"_hdbs.csv", "w") as file:
+        with open(outpath+"_est_ks_hdbs.csv", "w") as file:
             file.write(";".join(["k", "seed", "ari", "nmi", "pu", "re", "f1"])+ "\n")
 
         cluster_hdbscan(X, gt, outpath)
@@ -197,7 +200,7 @@ def cluster_with_estimated_ks(files, ks):
 
         outdir = "./eval/"
 
-        outpath = outdir + f
+        outpath = outdir + f + "_est_ks"
 
         if not os.path.exists(outdir):
             os.makedirs(outdir)
@@ -239,7 +242,7 @@ def cluster(files):
         X = get_normalized_vectors(data)
         gt = data["senseID"].values.tolist() # list of lists
 
-        ks_final = [num_senses-x for x in range(10,51,10)] + [num_senses+x for x in range(10,51,10)]
+        ks_final = [num_senses-x for x in range(10,31,10)] + [num_senses+x for x in range(10,31,10)]
 
         if np.asarray(ks_final).max() > X.shape[0]:
             print("!!! RESET ks")
@@ -278,10 +281,11 @@ def view_results():
         res = pd.concat(l, axis=0, ignore_index=True)
         print("Average performance:")
         print(res.groupby(["file", "k"]).mean().round(3))
-
+        print("")
         print("Standard deviation:")
         print(res.groupby(["file", "k"]).std().round(3))
         print("")
+
 
 if __name__ == "__main__":
     files_sorted_by_size = [
@@ -303,7 +307,7 @@ if __name__ == "__main__":
         'omsti',
         ] # process smaller files first
 
-    estimate_cluster_sizes_with_hdbscan(files, outpath)
+    estimate_cluster_sizes_with_hdbscan(files_sorted_by_size)
 
     files = [
         'senseval2_lexical_sample_train',
@@ -315,8 +319,8 @@ if __name__ == "__main__":
     num_clust = [118,83,106,77] # estimated cluster sizes (by HDBSCAN)
 
 
-    cluster_with_estimated_ks(files, num_clust, outpath)
-    cluster(files, outpath)
+    cluster_with_estimated_ks(files, num_clust)
+    cluster(files)
 
     view_results()
     

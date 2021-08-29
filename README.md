@@ -1,6 +1,6 @@
 # BERTifiedWordSenses
 
-BERTifiedWordSenses (BWS) is a dense high-dimensional clustering dataset derived from [UFSAC](https://github.com/getalp/UFSAC). BWS provides a total of over 2.8M sense-annotated words within sentences along with 768-dimensional contextual word embeddings extracted from BERT.
+BERTifiedWordSenses (BWS) is a dense high-dimensional clustering dataset derived from [UFSAC](https://github.com/getalp/UFSAC). BWS provides a total of over 2.8M sense-annotated words within sentences along with 768-dimensional contextual word embeddings extracted from [BERT](https://huggingface.co/transformers/model_doc/bert.html#bert).
 
 ## Usage
 
@@ -22,7 +22,7 @@ BWS files are provided as compressed CSV files (`.csv.xz`) and have the followin
 - wn_30_sense	
 - num_senses	
 - senseID	
-- avg
+- avg (768-dimensional word embedding vector <-- averaged token embeddings)
 
 ## Attribution
 
