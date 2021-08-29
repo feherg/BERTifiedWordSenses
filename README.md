@@ -6,7 +6,7 @@ BERTifiedWordSenses (BWS) is a dense high-dimensional clustering dataset derived
 
 1) Install the necessary dependencies from `requirements.txt`.
 1) Download [UFSAC v2.1](https://github.com/getalp/UFSAC/blob/master/corpus/ufsac-public-2.1.link.txt) and place it under `./ufsac`.
-1) To use BWS, download the dataset from [here](), and extract the files under `./data`.
+1) To use BWS, download the dataset from [here](https://tu-dortmund.sciebo.de/s/VusSNXhjt1BDgCC), and place the files under `./data`.
 1) To re-generate the BWS dataset, first run `load_ufsac.py`, and then `bertify_ufsac.py`.
 1) To recreate the experiments described in our paper, run `cluster_analysis.py`. 
 
