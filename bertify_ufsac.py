@@ -126,17 +126,9 @@ def process_dataset_masked_output(data, model, tokenizer, outpath):
         
 
     print("Triples flagged for removal due to length > 512: ", num_too_long)
-
-    data_avg = data.copy()
     
     averaged = pd.DataFrame(np.vstack(averaged))
-    data_avg = pd.concat([data_avg, averaged], axis=1) # save each value in the 768-dim vector as one col in the dataframe
-    data_avg["remove"] = remove
-
-    # data["averaged"] = averaged
-    # data["CLS"] = cls
-    cls = pd.DataFrame(np.vstack(cls))
-    data = pd.concat([data, cls], axis=1)
+    data = pd.concat([data, averaged], axis=1) # save each value in the 768-dim vector as one col in the dataframe
     data["remove"] = remove
 
     # clean
@@ -156,7 +148,7 @@ def process_dataset_masked_output(data, model, tokenizer, outpath):
     data["senseID"] = data["wn_30_sense"].apply((lambda x: [sense2id[i] for i in x]))
 
     # save
-    data_avg.to_csv(outpath, index=False)
+    data.to_csv(outpath, index=False)
 
 
 if __name__ == "__main__":
@@ -172,7 +164,7 @@ if __name__ == "__main__":
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    for idx_f in range(0,16):
+    for idx_f in range(2,3):
         print("File {}/16".format(idx_f+1))
 
         data = pd.read_csv("./data/ufsac_concat/ufsac_sentences_{}.csv.xz".format(idx_f))
