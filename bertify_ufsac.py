@@ -164,7 +164,7 @@ if __name__ == "__main__":
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    for idx_f in range(2,3):
+    for idx_f in range(0,16):
         print("File {}/16".format(idx_f+1))
 
         data = pd.read_csv("./data/ufsac_concat/ufsac_sentences_{}.csv.xz".format(idx_f))
