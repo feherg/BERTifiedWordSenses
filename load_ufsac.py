@@ -15,7 +15,7 @@ allfiles = os.listdir("./ufsac")
 
 num_sense_annotations_all = 0
 
-for idx_f,f in enumerate(allfiles[5:9]):
+for idx_f,f in enumerate(allfiles):
     print("Processing file {}/16".format(idx_f+1))
     sentid = [] # prefix for xml file + sentence idx
     sent = []
