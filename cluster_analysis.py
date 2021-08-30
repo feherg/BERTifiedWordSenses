@@ -265,28 +265,6 @@ def cluster(files):
                 cluster_fuzzy_cmeans(X, k, s, gt, outpath)     
 
 
-def view_results():
-    for alg in ["hdbs", "skm", "fuzzycm"]:
-        print("-"*5 + alg + "-"*5)
-        path = "./eval/" # use your path
-        all_files = glob.glob(path + "/*{}.csv".format(alg))
-
-        l = []
-
-        for filename in all_files:
-            df = pd.read_csv(filename, index_col=None, header=0, sep=";")
-            df["file"] = filename.split("/")[-1].split("_" + alg + ".csv")[0]
-            l.append(df)
-
-        res = pd.concat(l, axis=0, ignore_index=True)
-        print("Average performance:")
-        print(res.groupby(["file", "k"]).mean().round(3))
-        print("")
-        print("Standard deviation:")
-        print(res.groupby(["file", "k"]).std().round(3))
-        print("")
-
-
 if __name__ == "__main__":
     files_sorted_by_size = [
         'semeval2007task17', 

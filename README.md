@@ -9,6 +9,7 @@ BERTifiedWordSenses (BWS) is a dense high-dimensional clustering dataset derived
 1) To use BWS, download the dataset from here [https://tu-dortmund.sciebo.de/s/VusSNXhjt1BDgCC](https://tu-dortmund.sciebo.de/s/VusSNXhjt1BDgCC), and place the files under `./data`.
 1) To re-generate the BWS dataset, first run `load_ufsac.py`, and then `bertify_ufsac.py`.
 1) To recreate the experiments described in our paper, run `cluster_analysis.py`. 
+1) To view the clustering results, run `view_results.py`. You can pass a different input directory by using the `-p` flag.  
 
 ## Example
 BWS files are provided as compressed CSV files (`.csv.xz`) and have the following columns:
