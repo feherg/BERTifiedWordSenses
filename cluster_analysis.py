@@ -1,62 +1,17 @@
-# %%
-import pandas as pd
-import numpy as np
-import glob
-from itertools import chain
 from collections import Counter
-from sklearn.preprocessing import normalize
 import hdbscan
 from sklearn import metrics
 import skfuzzy as fuzz
 import os
-import ast
 
-def load_data(path):
-    # NOTE: expects the filepath or path to bws files, i.e., the output of bertify_ufsac.py
-    if ".csv.xz" in path:
-        # we have one file
-        return pd.read_csv(path, index_col=None, header=0)
-    else:
-        # several files
-        all_files = glob.glob(path + "/*.csv.xz")
-
-        l = []
-
-        for filename in all_files:
-            df = pd.read_csv(filename, index_col=None, header=0)
-            l.append(df)
-
-        data = pd.concat(l, axis=0, ignore_index=True)
-        return data
+from load_bws import *
 
 
-# %%
-def clean_data(data):
-    # merge embedding columns into np array
-    data["avg"] = np.vsplit(data[data.columns[7:-1]].values, len(data)) 
-    data["avg"] = data["avg"].apply(lambda x: x.flatten()) # get rid of unnecessary first dim; shape is now (768,)
-    data.drop(columns=[str(x) for x in range(768)], inplace=True) # remove 
-    data.drop(columns=["remove"], inplace=True)
-    data["wn_30_sense"]=data["wn_30_sense"].apply(lambda x: ast.literal_eval(x)) # read list
-    data["senseID"]=data["senseID"].apply(lambda x: ast.literal_eval(x)) # read list
 
-    # unique senses in the dataset
-    unique = set(list(chain.from_iterable(data["wn_30_sense"].values.tolist())))
-
-
-    return data, len(unique)
-
-
-# %%
-def get_normalized_vectors(data):
-    X = normalize(np.vstack(data["avg"].values), axis=1)
-    return X
-
-# %%
 def initial_centers(tfidf, k, seed):
     return tfidf[np.random.default_rng(seed=seed).choice(tfidf.shape[0], k, replace=False)]
 
-# %%
+
 def sphericalkmeans(tfidf, centers, max_iter=100):
     """REQUIRES the input to be L2 normalized, and does not handle corner cases such as empty clusters!"""
     last_assignment = None
@@ -71,7 +26,6 @@ def sphericalkmeans(tfidf, centers, max_iter=100):
     return centers, last_assignment, iter
 
 
-# %%
 def cluster_spherical(X, k, seed, gt, outpath):
     c = initial_centers(X, k, seed)
     c, l, _ = sphericalkmeans(X, c, max_iter=100)
@@ -95,7 +49,7 @@ def cluster_spherical(X, k, seed, gt, outpath):
     with open(outpath+"_skm.csv", "a") as f:
         f.write(";".join([str(k), str(seed), str(ari), str(nmi), str(pu), str(re), str(f1)]) + "\n")
 
-# %%
+
 def cluster_hdbscan(X, gt, outpath):
     X_cosine_dists = metrics.pairwise.pairwise_distances(X, metric="cosine")
     hdbs = hdbscan.HDBSCAN(metric='precomputed')
@@ -299,9 +253,6 @@ if __name__ == "__main__":
 
     cluster_with_estimated_ks(files, num_clust)
     cluster(files)
-
-    view_results()
-    
 
     
 
