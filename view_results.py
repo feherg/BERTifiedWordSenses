@@ -3,7 +3,7 @@ import pandas as pd
 import argparse
 
 def view_results(path):
-    for alg in ["hdbs", "skm", "fuzzycm"]:
+    for alg in ["hdbs", "skm", "fuzzycm", "literal"]:
         print("-"*5 + alg + "-"*5)
         all_files = glob.glob(path + "/*{}.csv".format(alg))
 
@@ -16,7 +16,7 @@ def view_results(path):
 
         res = pd.concat(l, axis=0, ignore_index=True)
         print("Average performance:")
-        print(res.groupby(["file", "k"]).mean().round(3))
+        print(res.groupby(["file", "k"]).mean().round(4))
         print("")
         print("Standard deviation:")
         print(res.groupby(["file", "k"]).std().round(3))
